@@ -1,0 +1,120 @@
+﻿@model MVC_EMS.Models.EmployeeFormViewModel
+
+@{
+    ViewBag.Title = "Create Employee";
+}
+
+<h2>Create Employee</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Employee.FirstName"></label>
+        <input asp-for="Employee.FirstName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.LastName"></label>
+        <input asp-for="Employee.LastName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Country</label>
+        <select asp-for="Employee.CountryId" asp-items="Model.Countries" class="form-control" id="CountryId">
+            <option value="">Select Country</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>State</label>
+        <select asp-for="Employee.StateId" class="form-control" id="StateId">
+            <option value="">Select State</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>City</label>
+        <select asp-for="Employee.CityId" class="form-control" id="CityId">
+            <option value="">Select City</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.EmailAddress"></label>
+        <input asp-for="Employee.EmailAddress" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.MobileNumber"></label>
+        <input asp-for="Employee.MobileNumber" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.PanNumber"></label>
+        <input asp-for="Employee.PanNumber" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.PassportNumber"></label>
+        <input asp-for="Employee.PassportNumber" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.EmployeeCode"></label>
+        <input asp-for="Employee.EmployeeCode" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.IsActive"></label>
+        <input asp-for="Employee.IsActive" type="checkbox" class="form-check-input" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.DateOfBirth"></label>
+        <input asp-for="Employee.DateOfBirth" type="date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Employee.DateOfJoinee"></label>
+        <input asp-for="Employee.DateOfJoinee" type="date" class="form-control" />
+    </div>
+
+
+    <button type="submit" class="btn btn-success">Save</button>
+</form>
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#CountryId').change(function () {
+                var countryId = $(this).val();
+                $('#StateId').empty();
+                $('#CityId').empty();
+
+                if (countryId) {
+                    $.getJSON('/EmployeeMaster/GetStates?countryId=' + countryId, function (data) {
+                        $('#StateId').append('<option value="">Select State</option>');
+                        $.each(data, function (i, item) {
+                            $('#StateId').append('<option value="' + item.state_Id + '">' + item.stateName + '</option>');
+                        });
+                    });
+                }
+            });
+
+            $('#StateId').change(function () {
+                var stateId = $(this).val();
+                $('#CityId').empty();
+
+                if (stateId) {
+                    $.getJSON('/EmployeeMaster/GetCities?stateId=' + stateId, function (data) {
+                        $('#CityId').append('<option value="">Select City</option>');
+                        $.each(data, function (i, item) {
+                            $('#CityId').append('<option value="' + item.city_Id + '">' + item.cityName + '</option>');
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+}
