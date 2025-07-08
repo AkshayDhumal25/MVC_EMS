@@ -1,0 +1,86 @@
+﻿@model MVC_EMS.Models.EmployeeMaster
+
+<h2>Edit Employee</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Emp_Id" />
+
+    <div class="form-group">
+        <label asp-for="FirstName"></label>
+        <input asp-for="FirstName" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="LastName"></label>
+        <input asp-for="LastName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Country</label>
+        <select asp-for="CountryId" asp-items="ViewBag.Countries" class="form-control" id="CountryId" required>
+            <option value="">Select Country</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>State</label>
+        <select asp-for="StateId" asp-items="ViewBag.States" class="form-control" id="StateId" required>
+            <option value="">Select State</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>City</label>
+        <select asp-for="CityId" asp-items="ViewBag.Cities" class="form-control" id="CityId" required>
+            <option value="">Select City</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EmailAddress"></label>
+        <input asp-for="EmailAddress" class="form-control" type="email" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MobileNumber"></label>
+        <input asp-for="MobileNumber" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-success">Update</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#CountryId').change(function () {
+                var countryId = $(this).val();
+                $('#StateId').empty();
+                $('#CityId').empty();
+                if (countryId) {
+                    $.getJSON('/EmployeeMaster/GetStates?countryId=' + countryId, function (data) {
+                        $('#StateId').append('<option value="">Select State</option>');
+                        $.each(data, function (i, item) {
+                            $('#StateId').append('<option value="' + item.state_Id + '">' + item.stateName + '</option>');
+                        });
+                    });
+                }
+            });
+
+            $('#StateId').change(function () {
+                var stateId = $(this).val();
+                $('#CityId').empty();
+                if (stateId) {
+                    $.getJSON('/EmployeeMaster/GetCities?stateId=' + stateId, function (data) {
+                        $('#CityId').append('<option value="">Select City</option>');
+                        $.each(data, function (i, item) {
+                            $('#CityId').append('<option value="' + item.city_Id + '">' + item.cityName + '</option>');
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+}

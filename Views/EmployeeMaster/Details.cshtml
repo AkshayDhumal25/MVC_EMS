@@ -1,0 +1,15 @@
+﻿@model MVC_EMS.Models.EmployeeMaster
+
+<h2>Employee Details</h2>
+
+<div>
+    <p><strong>Employee Code:</strong> @Model.EmployeeCode</p>
+    <p><strong>Name:</strong> @Model.FirstName @Model.LastName</p>
+    <p><strong>Email:</strong> @Model.EmailAddress</p>
+    <p><strong>Mobile:</strong> @Model.MobileNumber</p>
+    <p><strong>Country:</strong> @Model.Country?.CountryName</p>
+    <p><strong>State:</strong> @Model.State?.StateName</p>
+    <p><strong>City:</strong> @Model.City?.CityName</p>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

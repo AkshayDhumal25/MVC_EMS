@@ -78,12 +78,11 @@ namespace MVC_EMS.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly?>("DateOfBirth")
-                        .IsRequired()
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateOnly?>("DateOfJoinee")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("DateOfJoinee")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedDate")
                         .HasColumnType("datetime2");
@@ -163,6 +162,30 @@ namespace MVC_EMS.Migrations
                     b.HasIndex("CountryId");
 
                     b.ToTable("states");
+                });
+
+            modelBuilder.Entity("MVC_EMS.Models.User", b =>
+                {
+                    b.Property<int>("UserId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"));
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("MVC_EMS.Models.City", b =>

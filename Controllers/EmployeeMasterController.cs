@@ -16,16 +16,38 @@ namespace MVC_EMS.Controllers
         }
 
         // List employees
-        public async Task<IActionResult> Index()
+        //public async Task<IActionResult> Index()
+        //{
+        //    var employees = await _context.EmployeeMasters
+        //        .Where(e => !e.IsDeleted)
+        //        .Include(e => e.Country)
+        //        .Include(e => e.State)
+        //        .Include(e => e.City)
+        //        .ToListAsync();
+        //    return View(employees);
+        //}
+        public IActionResult Index()
         {
-            var employees = await _context.EmployeeMasters
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("UserId")))
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Index", "EmployeeMaster") });
+            }
+
+            if (HttpContext.Session.GetString("IsAdmin") != "True")
+            {
+                return Content("Access Denied: Only admins allowed.");
+            }
+
+            var employees = _context.EmployeeMasters
                 .Where(e => !e.IsDeleted)
                 .Include(e => e.Country)
                 .Include(e => e.State)
                 .Include(e => e.City)
-                .ToListAsync();
+                .ToList();
+
             return View(employees);
         }
+
 
         [HttpGet]
         public IActionResult Create()
@@ -111,5 +133,111 @@ namespace MVC_EMS.Controllers
 
             return Json(cities);
         }
+
+        public IActionResult Details(int id)
+        {
+            var employee = _context.EmployeeMasters
+                .Include(e => e.Country)
+                .Include(e => e.State)
+                .Include(e => e.City)
+                .FirstOrDefault(e => e.Emp_Id == id);
+
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return View(employee);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var employee = _context.EmployeeMasters.Find(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            _context.EmployeeMasters.Remove(employee);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Edit(int id)
+        {
+            var employee = _context.EmployeeMasters.Find(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            // Populate dropdowns
+            ViewBag.Countries = _context.countries
+                .Select(c => new SelectListItem { Value = c.CountryId.ToString(), Text = c.CountryName }).ToList();
+
+            ViewBag.States = _context.states
+                .Where(s => s.CountryId == employee.CountryId)
+                .Select(s => new SelectListItem { Value = s.StateId.ToString(), Text = s.StateName }).ToList();
+
+            ViewBag.Cities = _context.cities
+                .Where(c => c.StateId == employee.StateId)
+                .Select(c => new SelectListItem { Value = c.CityId.ToString(), Text = c.CityName }).ToList();
+
+            return View(employee);
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(EmployeeMaster employee)
+        {
+            if (! ModelState.IsValid)
+            {
+                var existingEmployee = _context.EmployeeMasters.Find(employee.Emp_Id);
+                if (existingEmployee == null)
+                {
+                    return NotFound();
+                }
+
+                // Update properties
+                existingEmployee.FirstName = employee.FirstName;
+                existingEmployee.LastName = employee.LastName;
+                existingEmployee.EmailAddress = employee.EmailAddress;
+                existingEmployee.MobileNumber = employee.MobileNumber;
+                existingEmployee.CountryId = employee.CountryId;
+                existingEmployee.StateId = employee.StateId;
+                existingEmployee.CityId = employee.CityId;
+                existingEmployee.UpdatedDate = DateTime.Now;
+
+                _context.SaveChanges();
+
+                return RedirectToAction(nameof(Index));
+            }
+
+            // If invalid, reload dropdowns
+            ViewBag.Countries = _context.countries
+                .Select(c => new SelectListItem { Value = c.CountryId.ToString(), Text = c.CountryName }).ToList();
+
+            ViewBag.States = _context.states
+                .Where(s => s.CountryId == employee.CountryId)
+                .Select(s => new SelectListItem { Value = s.StateId.ToString(), Text = s.StateName }).ToList();
+
+            ViewBag.Cities = _context.cities
+                .Where(c => c.StateId == employee.StateId)
+                .Select(c => new SelectListItem { Value = c.CityId.ToString(), Text = c.CityName }).ToList();
+
+            return View(employee);
+        }
+
+
+
+
+
     }
 }
